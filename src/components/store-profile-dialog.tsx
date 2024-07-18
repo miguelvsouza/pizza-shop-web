@@ -11,7 +11,10 @@ import {
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Textarea } from "./ui/textarea"
-import { getManagedRestaurant } from "@/api/get-managed-restaurant"
+import {
+  getManagedRestaurant,
+  GetManagedRestaurantResponse,
+} from "@/api/get-managed-restaurant"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -21,7 +24,7 @@ import { queryClient } from "@/lib/react-query"
 
 const storeProfileSchema = z.object({
   name: z.string().min(1),
-  description: z.string(),
+  description: z.string().nullable(),
 })
 
 type StoreProfileSchema = z.infer<typeof storeProfileSchema>
@@ -44,18 +47,33 @@ export function StoreProfileDialog() {
     },
   })
 
-  const { mutateAsync: updateProfileFn } = useMutation({
-    mutationFn: updateProfile,
-    onSuccess(_, { name, description }) {
-      const cached = queryClient.getQueryData(["managed-restaurant"])
+  function updateProfileManagedRestaurantCache({
+    name,
+    description,
+  }: StoreProfileSchema) {
+    const cached = queryClient.getQueryData<GetManagedRestaurantResponse>([
+      "managed-restaurant",
+    ])
 
-      if (cached) {
-        queryClient.setQueryData(["managed-restaurant"], {
+    if (cached) {
+      queryClient.setQueryData<GetManagedRestaurantResponse>(
+        ["managed-restaurant"],
+        {
           ...cached,
           name,
           description,
-        })
-      }
+        }
+      )
+    }
+  }
+
+  const { mutateAsync: updateProfileFn } = useMutation({
+    mutationFn: updateProfile,
+    onSuccess(_, { name, description }) {
+      updateProfileManagedRestaurantCache({
+        name,
+        description,
+      })
     },
   })
 
@@ -63,7 +81,7 @@ export function StoreProfileDialog() {
     try {
       await updateProfileFn({
         name: data.name,
-        description: data.description,
+        description: data.description ?? "",
       })
 
       toast.success("Perfil atualizado com sucesso!")
