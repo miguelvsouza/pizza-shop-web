@@ -12,7 +12,6 @@ import {
   YAxis,
   CartesianGrid,
   Line,
-  Tooltip,
 } from "recharts"
 import colors from "tailwindcss/colors"
 
