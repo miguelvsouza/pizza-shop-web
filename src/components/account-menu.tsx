@@ -20,7 +20,7 @@ import { signOut } from "@/api/sign-out"
 export function AccountMenu() {
   const navigate = useNavigate()
 
-  const { mutateAsync: signOutFn, isPending: isSigningOut } = useMutation({
+  const { mutateAsync: signOutFn } = useMutation({
     mutationFn: signOut,
     onSuccess: () => {
       navigate("/sign-in", { replace: true })
