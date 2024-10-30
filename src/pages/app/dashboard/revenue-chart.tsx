@@ -21,6 +21,7 @@ import {
 } from "recharts"
 import colors from "tailwindcss/colors"
 import { subDays } from "date-fns"
+import { Loader2 } from "lucide-react"
 
 export function RevenueChart() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -62,7 +63,7 @@ export function RevenueChart() {
       </CardHeader>
 
       <CardContent>
-        {dailyRevenueInPeriod && (
+        {dailyRevenueInPeriod ? (
           <ResponsiveContainer width="100%" height={240}>
             <LineChart data={dailyRevenueChart} style={{ fontSize: 12 }}>
               <XAxis dataKey="date" axisLine={false} tickLine={false} dy={16} />
@@ -87,6 +88,10 @@ export function RevenueChart() {
               />
             </LineChart>
           </ResponsiveContainer>
+        ) : (
+          <div className="w-full h-[240px] flex items-center justify-center">
+            <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
+          </div>
         )}
       </CardContent>
     </Card>
